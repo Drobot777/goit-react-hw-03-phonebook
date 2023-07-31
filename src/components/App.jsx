@@ -9,6 +9,15 @@ export class App extends Component {
     name: '',
     filter: '',
   };
+  localStorageName ='localName'
+   saveLocalStorage = (key, value) => {
+    try {
+      const serializedState = JSON.stringify(value);
+      localStorage.setItem(key, serializedState);
+    } catch (error) {
+      console.error("Set state error: ", error.message);
+    }
+  };
 
   toggle = (name, tel) => {
     let masName = [];
@@ -34,13 +43,19 @@ export class App extends Component {
     this.setState ({filter: value});
   };
   deleteContact = id => {
-    this.state.contacts.forEach ((el, i) => {
-      if (el.id === id) {
-        return delete this.state.contacts[i];
-      }
-    });
-    this.setState ({});
+   let obj = this.state.contacts.filter ((el) => el.id!==id);
+    this.setState ({contacts:obj});
   };
+  componentDidUpdate(prevState){
+    if(prevState.contacts!==this.state.contacts){
+      return this.saveLocalStorage(this.localStorageName,this.state.contacts)
+    }
+  }
+  componentDidMount() {
+    const saveLocalStorage = localStorage.getItem(this.localStorageName)
+
+this.setState({contacts:saveLocalStorage?JSON.parse(saveLocalStorage):[]})
+  }
 
   render () {
     const {filter} = this.state;
